@@ -1,0 +1,17 @@
+{
+  "name": "aur_ved",
+  "version": "1.0.0",
+  "description": "HealthPulse AI - Government Health Intelligence Platform",
+  "main": "aur_ved-main/arogya_ved/main.py",
+  "scripts": {
+    "start": "cd aur_ved-main/arogya_ved && python3 main.py",
+    "build": "pip install -r aur_ved-main/arogya_ved/requirements.txt",
+    "dev": "cd aur_ved-main/arogya_ved && python3 main.py"
+  },
+  "engines": {
+    "python": "3.11.x"
+  },
+  "keywords": ["health", "ai", "government", "fastapi"],
+  "author": "HealthPulse AI",
+  "license": "MIT"
+}
