@@ -38,6 +38,9 @@ def get_current_user(token: str, db):
     from models import User
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
+    # Handle "Bearer " prefix
+    if token.startswith("Bearer "):
+        token = token[7:]
     payload = decode_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -48,3 +51,20 @@ def get_current_user(token: str, db):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+def get_user_optional(request, db):
+    """Try to get user from token, but return None instead of raising if not found"""
+    from models import User
+    token = request.cookies.get("access_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        return None
+    try:
+        payload = decode_token(token)
+        if not payload:
+            return None
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        return db.query(User).filter(User.id == int(user_id)).first()
+    except:
+        return None

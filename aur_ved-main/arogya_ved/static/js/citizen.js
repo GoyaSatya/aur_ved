@@ -24,8 +24,11 @@ function showSection(name) {
 
 async function loadProfile() {
   try {
-    const res = await api('/api/citizen/profile');
-    if (!res.ok) return;
+    const res = await fetch('/api/citizen/profile', { credentials: 'include' });
+    if (!res.ok) {
+      console.log('Profile API not available, using defaults');
+      return;
+    }
     const d = await res.json();
     // Update stats
     const scoreNum = document.getElementById('score-num');
@@ -37,7 +40,6 @@ async function loadProfile() {
     if (scoreNum) scoreNum.textContent = d.health_score;
     if (statScore) statScore.textContent = `${d.health_score}/100`;
     if (scoreLabel) {
-      const labels = { 90: 'Excellent', 75: 'Good', 50: 'Moderate', 30: 'At Risk' };
       let label = 'Critical';
       if (d.health_score >= 90) label = 'Excellent';
       else if (d.health_score >= 75) label = 'Good';
@@ -62,12 +64,13 @@ async function loadProfile() {
     if (healthBar) healthBar.style.width = `${d.health_score}%`;
     if (healthPct) healthPct.textContent = `${d.health_score}%`;
     window._profile = d;
-  } catch(e) { console.log('Profile load:', e); }
+  } catch(e) { console.log('Profile load error:', e); }
 }
 
 async function loadProfileSection() {
+  if (!window._profile) { await loadProfile(); }
   const d = window._profile;
-  if (!d) { await loadProfile(); return; }
+  if (!d) return;
   const fields = { 'p-name': d.name, 'p-age': d.age, 'p-gender': d.gender,
     'p-phone': d.phone, 'p-village': d.village, 'p-district': d.district,
     'p-phc': d.nearest_phc };
@@ -93,12 +96,17 @@ async function loadProfileSection() {
 
 async function loadCamps() {
   try {
-    const res = await fetch('/api/citizen/camps');
+    const res = await fetch('/api/citizen/camps', { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to load camps');
     const camps = await res.json();
     const campsList = document.getElementById('camps-list');
     if (!campsList) return;
     const icons = { Diabetes: 'diabetes', Eye: 'eye', 'Women Health': 'women' };
     const emojis = { Diabetes: '🩸', Eye: '👁️', 'Women Health': '👩', General: '🏥' };
+    if (!camps || camps.length === 0) {
+      campsList.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;">No upcoming camps in your area</div>';
+      return;
+    }
     campsList.innerHTML = camps.slice(0, 3).map(c => `
       <div class="camp-item">
         <div class="camp-icon ${icons[c.type] || 'general'}">${emojis[c.type] || '🏥'}</div>
@@ -114,14 +122,23 @@ async function loadCamps() {
       const bookBtn = document.getElementById('book-btn');
       if (bookBtn) bookBtn.setAttribute('onclick', `bookAppointment(${camps[0].id})`);
     }
-  } catch(e) {}
+  } catch(e) {
+    console.log('Camps load error:', e);
+    const campsList = document.getElementById('camps-list');
+    if (campsList) campsList.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;">Unable to load camps. Please refresh.</div>';
+  }
 }
 
 async function loadAllCamps() {
+  if (!window._camps) await loadCamps();
   const camps = window._camps || [];
   const el = document.getElementById('all-camps');
   if (!el) return;
   const emojis = { Diabetes: '🩸', Eye: '👁️', 'Women Health': '👩', General: '🏥' };
+  if (camps.length === 0) {
+    el.innerHTML = '<div style="color:#64748b;text-align:center;padding:30px;">No camps available</div>';
+    return;
+  }
   el.innerHTML = camps.map(c => `
     <div class="card">
       <div style="font-size:28px;margin-bottom:10px;">${emojis[c.type] || '🏥'}</div>
@@ -131,15 +148,20 @@ async function loadAllCamps() {
       <div style="font-size:13px;color:#64748b;margin-bottom:14px;">🕐 ${c.time}</div>
       <div style="font-size:12px;color:#64748b;margin-bottom:12px;">Organizer: ${c.organizer}</div>
       <button class="btn btn-primary btn-sm btn-full" onclick="bookAppointment(${c.id})">Book Appointment</button>
-    </div>`).join('') || '<div style="color:#64748b;text-align:center;padding:30px;">No camps available</div>';
+    </div>`).join('');
 }
 
 async function loadAllReminders() {
   try {
-    const res = await fetch('/api/citizen/reminders');
+    const res = await fetch('/api/citizen/reminders', { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to load reminders');
     const reminders = await res.json();
     const el = document.getElementById('all-reminders');
     if (!el) return;
+    if (!reminders || reminders.length === 0) {
+      el.innerHTML = '<div class="card"><div style="text-align:center;padding:30px;color:#64748b;">No reminders at this time</div></div>';
+      return;
+    }
     el.innerHTML = reminders.map(r => `
       <div class="card" style="border-left:4px solid ${r.priority==='high'?'#ef4444':'#f97316'};">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
@@ -152,12 +174,16 @@ async function loadAllReminders() {
         <div style="font-size:13px;color:#64748b;margin-bottom:14px;">📅 ${r.date}</div>
         ${r.camp_id ? `<button class="btn btn-primary" onclick="bookAppointment(${r.camp_id})">Book Now</button>` : ''}
       </div>`).join('');
-  } catch(e) {}
+  } catch(e) {
+    console.log('Reminders load error:', e);
+    const el = document.getElementById('all-reminders');
+    if (el) el.innerHTML = '<div class="card"><div style="text-align:center;padding:30px;color:#64748b;">Unable to load reminders</div></div>';
+  }
 }
 
 async function loadNotifications() {
   try {
-    const res = await api('/api/citizen/notifications');
+    const res = await fetch('/api/citizen/notifications', { credentials: 'include' });
     if (!res.ok) return;
     const notifs = await res.json();
     const el = document.getElementById('notif-list');
@@ -171,13 +197,18 @@ async function loadNotifications() {
         <div class="notif-time">${n.time_ago}</div>
       </div>`).join('') || '<div style="color:#64748b;padding:10px;text-align:center;">No notifications</div>';
     window._notifs = notifs;
-  } catch(e) {}
+  } catch(e) { console.log('Notifications load:', e); }
 }
 
 async function loadAllNotifications() {
+  if (!window._notifs) await loadNotifications();
   const notifs = window._notifs || [];
   const el = document.getElementById('all-notifs-list');
   if (!el) return;
+  if (notifs.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:#64748b;">No notifications</div>';
+    return;
+  }
   el.innerHTML = notifs.map(n => `
     <div class="notif-item" style="padding:14px 0;">
       <div class="notif-dot ${n.priority}" style="width:10px;height:10px;"></div>
@@ -186,7 +217,7 @@ async function loadAllNotifications() {
         <div style="font-size:13px;color:#64748b;margin-top:2px;">${n.message}</div>
       </div>
       <div class="notif-time">${n.time_ago}</div>
-    </div>`).join('') || '<div style="text-align:center;padding:30px;color:#64748b;">No notifications</div>';
+    </div>`).join('');
 }
 
 async function bookAppointment(campId) {
@@ -198,7 +229,11 @@ async function bookAppointment(campId) {
   const form = new FormData();
   form.append('camp_id', campId);
   try {
-    const res = await api('/api/citizen/book-appointment', { method: 'POST', body: form });
+    const res = await fetch('/api/citizen/book-appointment', {
+      method: 'POST',
+      body: form,
+      credentials: 'include'
+    });
     const data = await res.json();
     if (res.ok) {
       if (data.status === 'already_booked') {
@@ -233,17 +268,17 @@ function showBookingSuccess(data) {
     z-index:9999;display:flex;align-items:center;justify-content:center;`;
   modal.innerHTML = `
     <div style="background:white;border-radius:20px;padding:36px;max-width:420px;width:90%;
-                box-shadow:0 25px 60px rgba(0,0,0,0.2);text-align:center;animation:slideIn 0.3s ease;">
+                box-shadow:0 25px 60px rgba(0,0,0,0.2);text-align:center;">
       <div style="width:70px;height:70px;background:#dcfce7;border-radius:50%;display:flex;
                   align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px;">✅</div>
       <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:8px;">Appointment Confirmed!</h2>
       <p style="color:#64748b;font-size:14px;margin-bottom:20px;">Your slot has been successfully booked.</p>
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px;text-align:left;">
         <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;">
-          <div>🏥 <b>${data.message.replace('Appointment confirmed at ','')}</b></div>
+          <div>🏥 <b>${data.message ? data.message.replace('Appointment confirmed at ','') : 'Health Camp'}</b></div>
           <div>📍 ${data.location || 'PHC Hanamkonda'}</div>
-          <div>📅 ${fmtDate ? fmtDate(data.date) : data.date}</div>
-          <div>🕐 ${data.time}</div>
+          <div>📅 ${data.date || 'TBD'}</div>
+          <div>🕐 ${data.time || 'TBD'}</div>
         </div>
       </div>
       <div style="display:flex;gap:10px;justify-content:center;">

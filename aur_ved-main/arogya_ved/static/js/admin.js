@@ -23,22 +23,39 @@ function adminSection(name) {
   if (name === 'recommendations') loadRecommendations();
 }
 
+// Helper function for safe fetch with error handling
+async function safeApi(url, options = {}) {
+  try {
+    const res = await fetch(url, { ...options, credentials: 'include' });
+    if (!res.ok) {
+      console.error(`API Error: ${res.status} ${res.statusText} for ${url}`);
+    }
+    return res;
+  } catch (e) {
+    console.error(`Network error for ${url}:`, e);
+    return null;
+  }
+}
+
 async function loadAdminStats() {
   try {
-    const res = await fetch('/api/admin/stats');
+    const res = await safeApi('/api/admin/stats');
+    if (!res || !res.ok) return;
     const d = await res.json();
-    document.getElementById('a-citizens').textContent = d.total_citizens;
-    document.getElementById('a-employees').textContent = d.total_employees;
-    document.getElementById('a-pending').textContent = d.pending_approvals;
-    document.getElementById('a-phcs').textContent = d.total_phcs;
-    document.getElementById('a-disease').textContent = d.total_disease_reports;
-    document.getElementById('a-camps').textContent = d.health_camps;
-  } catch(e) {}
+    const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    el('a-citizens', d.total_citizens);
+    el('a-employees', d.total_employees);
+    el('a-pending', d.pending_approvals);
+    el('a-phcs', d.total_phcs);
+    el('a-disease', d.total_disease_reports);
+    el('a-camps', d.health_camps);
+  } catch(e) { console.log('Stats load error:', e); }
 }
 
 async function loadDiseaseChart() {
   try {
-    const res = await fetch('/api/charts/disease-trend');
+    const res = await safeApi('/api/charts/disease-trend');
+    if (!res || !res.ok) return;
     const d = await res.json();
     const ctx = document.getElementById('disease-chart');
     if (!ctx) return;
@@ -57,12 +74,13 @@ async function loadDiseaseChart() {
         plugins: { legend: { position: 'top' } },
         scales: { y: { beginAtZero: true } } }
     });
-  } catch(e) {}
+  } catch(e) { console.log('Disease chart error:', e); }
 }
 
 async function loadForecastChart() {
   try {
-    const res = await fetch('/api/charts/resource-forecast');
+    const res = await safeApi('/api/charts/resource-forecast');
+    if (!res || !res.ok) return;
     const d = await res.json();
     const ctx = document.getElementById('forecast-chart');
     if (!ctx) return;
@@ -80,12 +98,17 @@ async function loadForecastChart() {
         plugins: { legend: { position: 'top' } },
         scales: { y: { beginAtZero: true } } }
     });
-  } catch(e) {}
+  } catch(e) { console.log('Forecast chart error:', e); }
 }
 
 async function loadApprovals() {
   try {
-    const res = await fetch('/api/admin/pending-employees');
+    const res = await safeApi('/api/admin/pending-employees');
+    if (!res || !res.ok) {
+      const el = document.getElementById('approvals-list');
+      if (el) el.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b;">Unable to load approvals</div>';
+      return;
+    }
     const employees = await res.json();
     const el = document.getElementById('approvals-list');
     if (!el) return;
@@ -111,31 +134,37 @@ async function loadApprovals() {
           </tr>`).join('')}
         </tbody>
       </table>`;
-  } catch(e) {}
+  } catch(e) { console.log('Approvals load error:', e); }
 }
 
 async function approveEmployee(id) {
   try {
-    const res = await fetch(`/api/admin/approve-employee/${id}`, { method: 'POST' });
-    const d = await res.json();
-    showToast('✅ Employee approved!', 'success');
-    loadApprovals();
-    loadAdminStats();
+    const res = await safeApi(`/api/admin/approve-employee/${id}`, { method: 'POST' });
+    if (res && res.ok) {
+      showToast('✅ Employee approved!', 'success');
+      loadApprovals();
+      loadAdminStats();
+    } else {
+      showToast('Error approving employee', 'error');
+    }
   } catch(e) { showToast('Error approving employee', 'error'); }
 }
 
 async function rejectEmployee(id) {
   if (!confirm('Reject this employee registration?')) return;
   try {
-    const res = await fetch(`/api/admin/reject-employee/${id}`, { method: 'POST' });
-    showToast('Employee rejected', 'warning');
-    loadApprovals();
-  } catch(e) {}
+    const res = await safeApi(`/api/admin/reject-employee/${id}`, { method: 'POST' });
+    if (res && res.ok) {
+      showToast('Employee rejected', 'warning');
+      loadApprovals();
+    }
+  } catch(e) { showToast('Error rejecting employee', 'error'); }
 }
 
 async function loadPHCs() {
   try {
-    const res = await fetch('/api/admin/phcs');
+    const res = await safeApi('/api/admin/phcs');
+    if (!res || !res.ok) return;
     const phcs = await res.json();
     const el = document.getElementById('phcs-grid');
     if (!el) return;
@@ -169,12 +198,13 @@ async function loadPHCs() {
         <button class="btn btn-secondary btn-sm btn-full" style="margin-top:12px;" onclick="loadDigitalTwin(${p.id});adminSection('digital-twin')">🔬 View Digital Twin</button>
       </div>`;
     }).join('');
-  } catch(e) {}
+  } catch(e) { console.log('PHCs load error:', e); }
 }
 
 async function loadDiseaseReports() {
   try {
-    const res = await fetch('/api/admin/disease-reports');
+    const res = await safeApi('/api/admin/disease-reports');
+    if (!res || !res.ok) return;
     const reports = await res.json();
     const tbody = document.getElementById('disease-table');
     if (!tbody) return;
@@ -187,12 +217,13 @@ async function loadDiseaseReports() {
         <td>${riskBadge(r.risk_level)}</td>
         <td>${r.date}</td>
       </tr>`).join('');
-  } catch(e) {}
+  } catch(e) { console.log('Disease reports load error:', e); }
 }
 
 async function loadOutbreakPrediction() {
   try {
-    const res = await fetch('/api/ai/outbreak-prediction');
+    const res = await safeApi('/api/ai/outbreak-prediction');
+    if (!res || !res.ok) return;
     const d = await res.json();
     const el = document.getElementById('outbreak-cards');
     if (!el) return;
@@ -225,7 +256,7 @@ async function loadOutbreakPrediction() {
         </div>
         <div style="background:#fff7ed;border-radius:8px;padding:12px;">
           <div style="font-size:12px;font-weight:700;color:#ea580c;margin-bottom:6px;">🤖 Why AI Predicts This:</div>
-          ${p.explanation.map(e => `<div style="font-size:12px;color:#64748b;margin-bottom:3px;">• ${e}</div>`).join('')}
+          ${(p.explanation || []).map(e => `<div style="font-size:12px;color:#64748b;margin-bottom:3px;">• ${e}</div>`).join('')}
         </div>
         <div style="display:flex;gap:8px;margin-top:12px;font-size:12px;flex-wrap:wrap;">
           <span>💊 Medicines: <b>${p.estimated_medicine_demand}</b></span>
@@ -233,26 +264,27 @@ async function loadOutbreakPrediction() {
           <span>👨‍⚕️ Doctors: <b>${p.estimated_doctors}</b></span>
         </div>
       </div>`).join('');
-  } catch(e) {}
+  } catch(e) { console.log('Outbreak prediction error:', e); }
 }
 
 async function loadForecastDetails() {
   try {
-    const res = await fetch('/api/ai/demand-forecast');
+    const res = await safeApi('/api/ai/demand-forecast');
+    if (!res || !res.ok) return;
     const d = await res.json();
     const el = document.getElementById('forecast-details');
     if (!el) return;
     const alertColors = { warning: '#ffedd5', info: '#dbeafe', alert: '#fee2e2' };
     el.innerHTML = `
       <div style="display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
-        ${d.top_alerts.map(a => `<div style="flex:1;background:${alertColors[a.type]||'#f8fafc'};border-radius:10px;padding:12px;font-size:13px;min-width:200px;">${a.message}</div>`).join('')}
+        ${(d.top_alerts || []).map(a => `<div style="flex:1;background:${alertColors[a.type]||'#f8fafc'};border-radius:10px;padding:12px;font-size:13px;min-width:200px;">${a.message}</div>`).join('')}
       </div>
       <div class="card">
         <div class="card-title">7-Day Demand Forecast</div>
         <table class="data-table">
           <thead><tr><th>Day</th><th>Patients</th><th>Beds Needed</th><th>ORS</th><th>Malaria Kits</th><th>Doctors</th><th>Confidence</th></tr></thead>
           <tbody>
-            ${d.forecast.map(f => `<tr>
+            ${(d.forecast || []).map(f => `<tr>
               <td><b>${f.date}</b><br><span style="font-size:11px;color:#64748b;">${f.day}</span></td>
               <td><b>${f.predicted_patients}</b></td>
               <td>${f.bed_demand}</td>
@@ -264,7 +296,7 @@ async function loadForecastDetails() {
           </tbody>
         </table>
       </div>`;
-  } catch(e) {}
+  } catch(e) { console.log('Forecast details error:', e); }
 }
 
 function initMap() {
@@ -279,7 +311,7 @@ function initMap() {
     const sel = document.getElementById('map-state-filter');
     if (!sel) return;
     states.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
-  });
+  }).catch(e => console.log('States load error:', e));
 }
 
 function handleStateChange(state) {
@@ -311,13 +343,14 @@ let allMapMarkers = [];
 
 async function loadMapPHCs() {
   try {
-    const res = await fetch('/api/map/phc-locations');
+    const res = await safeApi('/api/map/phc-locations');
+    if (!res || !res.ok) return;
     const phcs = await res.json();
     window._allPHCs = phcs;
     renderMapMarkers(phcs);
     const countEl = document.getElementById('map-phc-count');
     if (countEl) countEl.textContent = `Showing ${phcs.length} PHC/CHC locations across India`;
-  } catch(e) { console.log('Map error:', e); }
+  } catch(e) { console.log('Map PHCs load error:', e); }
 }
 
 function renderMapMarkers(phcs) {
@@ -328,8 +361,6 @@ function renderMapMarkers(phcs) {
   phcs.forEach(p => {
     if (!p.lat || !p.lng) return;
     const color = colors[p.risk] || '#16a34a';
-    const score = p.health_score;
-    const scoreColor = score >= 75 ? '#16a34a' : score >= 50 ? '#eab308' : score >= 30 ? '#f97316' : '#ef4444';
     const marker = L.circleMarker([p.lat, p.lng], {
       radius: p.health_score >= 75 ? 9 : p.health_score >= 50 ? 10 : 12,
       fillColor: color, color: 'white', weight: 2, opacity: 1, fillOpacity: 0.9
@@ -339,7 +370,7 @@ function renderMapMarkers(phcs) {
         <div style="font-weight:800;font-size:14px;margin-bottom:4px;color:#0f172a;">${p.name}</div>
         <div style="font-size:12px;color:#64748b;margin-bottom:8px;">📍 ${p.district}, ${p.state}</div>
         <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-size:12px;font-weight:600;color:${scoreColor};">Health Score: ${p.health_score}/100</span>
+          <span style="font-size:12px;font-weight:600;color:${p.health_score >= 75 ? '#16a34a' : p.health_score >= 50 ? '#eab308' : '#f97316'};">Health Score: ${p.health_score}/100</span>
           <span style="background:${color}20;color:${color};padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;">${p.risk.toUpperCase()}</span>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;background:#f8fafc;border-radius:6px;padding:8px;">
@@ -391,13 +422,13 @@ function filterMapByDistrict(district) {
 
 async function loadDigitalTwin(id) {
   try {
-    const res = await fetch(`/api/ai/digital-twin/${id}`);
+    const res = await safeApi(`/api/ai/digital-twin/${id}`);
+    if (!res || !res.ok) return;
     const d = await res.json();
     const el = document.getElementById('digital-twin-data');
     if (!el) return;
     const s = d.current_status;
     const p = d.predictions;
-    const scoreColor = d.phc.health_score >= 75 ? '#16a34a' : d.phc.health_score >= 50 ? '#eab308' : '#ef4444';
     el.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;">
         ${[
@@ -428,7 +459,7 @@ async function loadDigitalTwin(id) {
         <div class="card-title">🚨 Active Alerts</div>
         ${d.alerts.map(a => `<div style="background:${a.level==='critical'?'#fee2e2':a.level==='warning'?'#ffedd5':'#f0fdf4'};border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;">${a.message}</div>`).join('')}
       </div>`;
-  } catch(e) {}
+  } catch(e) { console.log('Digital twin error:', e); }
 }
 
 async function runSimulation(scenario) {
@@ -437,9 +468,12 @@ async function runSimulation(scenario) {
   const form = new FormData();
   form.append('scenario', scenario);
   try {
-    const res = await fetch('/api/ai/simulate', { method: 'POST', body: form });
+    const res = await safeApi('/api/ai/simulate', { method: 'POST', body: form });
+    if (!res || !res.ok) {
+      if (el) el.innerHTML = '<div style="text-align:center;padding:30px;color:#64748b;">Simulation failed. Please try again.</div>';
+      return;
+    }
     const d = await res.json();
-    if (!el) return;
     const alertColors = { Critical: '#ef4444', High: '#f97316', Medium: '#eab308' };
     el.innerHTML = `
       <div class="card" style="border-top:4px solid ${alertColors[d.alert_level]||'#ef4444'};">
@@ -458,17 +492,20 @@ async function runSimulation(scenario) {
         ${d.recommended_actions.map(a => `<div style="padding:8px 0;border-bottom:1px solid #e2e8f0;font-size:13px;">✅ ${a}</div>`).join('')}
         <div style="margin-top:12px;font-size:12px;color:#16a34a;font-weight:600;">AI Confidence: ${Math.round(d.confidence * 100)}%</div>
       </div>`;
-  } catch(e) {}
+  } catch(e) {
+    if (el) el.innerHTML = '<div style="text-align:center;padding:30px;color:#64748b;">Simulation failed. Please try again.</div>';
+  }
 }
 
 async function loadRecommendations() {
   try {
-    const res = await fetch('/api/ai/recommendations');
+    const res = await safeApi('/api/ai/recommendations');
+    if (!res || !res.ok) return;
     const d = await res.json();
     const el = document.getElementById('recommendations-list');
     if (!el) return;
     const priorityColors = { critical: '#ef4444', high: '#f97316', medium: '#eab308' };
-    el.innerHTML = d.recommendations.map(r => `
+    el.innerHTML = (d.recommendations || []).map(r => `
       <div class="card" style="border-left:4px solid ${priorityColors[r.priority]||'#eab308'};margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
           <div>
@@ -493,7 +530,7 @@ async function loadRecommendations() {
           <button class="btn btn-primary btn-sm">Execute Transfer</button>
         </div>
       </div>`).join('');
-  } catch(e) {}
+  } catch(e) { console.log('Recommendations load error:', e); }
 }
 
 // Add disease report form
@@ -504,9 +541,9 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       const fd = new FormData(this);
       try {
-        const res = await fetch('/api/admin/add-disease-report', { method: 'POST', body: fd });
-        const d = await res.json();
-        if (res.ok) {
+        const res = await safeApi('/api/admin/add-disease-report', { method: 'POST', body: fd });
+        if (res && res.ok) {
+          const d = await res.json();
           showToast(`Report added. Risk level: ${d.risk_level}`, 'success');
           form.reset();
         } else { showToast('Failed to add report', 'error'); }

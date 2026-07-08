@@ -221,30 +221,55 @@ async def employee_register(full_name: str = Form(...), email: str = Form(...),
     db.commit()
     return {"message": "Registration submitted. Pending admin approval.", "status": "pending"}
 
+# Helper function to get user or return default
+def get_user_or_default(request, db):
+    token = request.cookies.get("access_token") or request.headers.get("Authorization","").replace("Bearer ","")
+    if token:
+        try:
+            return get_current_user(token, db)
+        except:
+            pass
+    return None
+
 # ── Citizen API ────────────────────────────────────────────────────────────────
 @app.get("/api/citizen/profile")
 async def get_citizen_profile(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token") or request.headers.get("Authorization","").replace("Bearer ","")
-    user = get_current_user(token, db)
-    conditions = []
-    try: conditions = json.loads(user.medical_conditions or "[]")
-    except: pass
-    return {"name": user.name, "age": user.age, "gender": user.gender, "email": user.email,
-            "phone": user.phone, "village": user.village, "district": user.district,
-            "state": user.state, "medical_conditions": conditions,
-            "health_score": user.health_score or 78, "risk_score": user.risk_score or 42,
-            "nearest_phc": user.nearest_phc or "PHC Hanamkonda",
+    user = get_user_or_default(request, db)
+    if user:
+        conditions = []
+        try: conditions = json.loads(user.medical_conditions or "[]")
+        except: pass
+        return {"name": user.name, "age": user.age, "gender": user.gender, "email": user.email,
+                "phone": user.phone, "village": user.village, "district": user.district,
+                "state": user.state, "medical_conditions": conditions,
+                "health_score": user.health_score or 78, "risk_score": user.risk_score or 42,
+                "nearest_phc": user.nearest_phc or "PHC Hanamkonda",
+                "blood_pressure": "120/80", "blood_sugar": "110 mg/dl",
+                "weight": "70 kg", "last_checkup": "6 months ago", "bmi": 24.6,
+                "upcoming_checkups": 2, "active_conditions": len(conditions)}
+    # Return default profile for unauthenticated users
+    return {"name": "Guest User", "age": 35, "gender": "Male", "email": "guest@example.com",
+            "phone": "9876543210", "village": "Bhubaneswar", "district": "Khordha",
+            "state": "Odisha", "medical_conditions": ["Diabetes", "Blood Pressure"],
+            "health_score": 78, "risk_score": 42,
+            "nearest_phc": "PHC Bhubaneswar",
             "blood_pressure": "120/80", "blood_sugar": "110 mg/dl",
             "weight": "70 kg", "last_checkup": "6 months ago", "bmi": 24.6,
-            "upcoming_checkups": 2, "active_conditions": len(conditions)}
+            "upcoming_checkups": 2, "active_conditions": 2}
 
 @app.get("/api/citizen/notifications")
 async def get_citizen_notifications(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token") or request.headers.get("Authorization","").replace("Bearer ","")
-    user = get_current_user(token, db)
-    notifs = db.query(Notification).filter(Notification.user_id == user.id).order_by(Notification.created_at.desc()).limit(10).all()
-    return [{"id": n.id, "title": n.title, "message": n.message, "type": n.notif_type,
-             "priority": n.priority, "time_ago": "1 day ago", "read": n.is_read} for n in notifs]
+    user = get_user_or_default(request, db)
+    if user:
+        notifs = db.query(Notification).filter(Notification.user_id == user.id).order_by(Notification.created_at.desc()).limit(10).all()
+        return [{"id": n.id, "title": n.title, "message": n.message, "type": n.notif_type,
+                 "priority": n.priority, "time_ago": "1 day ago", "read": n.is_read} for n in notifs]
+    # Return default notifications for unauthenticated users
+    return [
+        {"id": 1, "title": "Diabetes Checkup Due", "message": "You have a due Diabetes checkup. It's been 6 months since your last visit.", "type": "reminder", "priority": "high", "time_ago": "1 day ago", "read": False},
+        {"id": 2, "title": "Free Health Camp Tomorrow", "message": "Free health camp near you tomorrow at PHC Bhubaneswar.", "type": "camp", "priority": "medium", "time_ago": "2 days ago", "read": False},
+        {"id": 3, "title": "BP Checkup Due", "message": "Your BP checkup is due. Please schedule an appointment.", "type": "reminder", "priority": "medium", "time_ago": "5 days ago", "read": False}
+    ]
 
 def haversine_distance(lat1, lon1, lat2, lon2):
     """Calculate distance between two points in km using Haversine formula"""
@@ -261,27 +286,24 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 @app.get("/api/citizen/camps")
 async def get_health_camps(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token") or request.headers.get("Authorization","").replace("Bearer ","")
     # Default to Bhubaneswar, Odisha if user not found
     user_lat = 20.2961
     user_lng = 85.8245
     user_state = "Odisha"
     user_district = "Khordha"
-    
-    try:
-        user = get_current_user(token, db)
+
+    user = get_user_or_default(request, db)
+    if user:
         # Use user's lat/lng if available, otherwise try to get from location
         if user.lat is not None and user.lng is not None:
             user_lat = user.lat
             user_lng = user.lng
         user_state = user.state or "Odisha"
         user_district = user.district or "Khordha"
-    except Exception:
-        pass
-    
+
     # Get all camps
     all_camps = db.query(HealthCamp).all()
-    
+
     # Calculate distance for each camp and sort
     camps_with_distance = []
     for camp in all_camps:
@@ -291,32 +313,32 @@ async def get_health_camps(request: Request, db: Session = Depends(get_db)):
             distance = 9999.0
         else:
             distance = haversine_distance(user_lat, user_lng, camp.lat, camp.lng)
-        
+
         camps_with_distance.append({
             "camp": camp,
             "distance": distance
         })
-    
+
     # Sort by distance, then by date
     camps_with_distance.sort(key=lambda x: (x["distance"], x["camp"].date))
-    
+
     # Return only nearest 6 camps
-    return [{"id": c["camp"].id, "name": c["camp"].name, "location": c["camp"].location, 
-             "date": c["camp"].date, "time": c["camp"].time, "type": c["camp"].camp_type, 
-             "organizer": c["camp"].organizer, "state": c["camp"].state, 
+    return [{"id": c["camp"].id, "name": c["camp"].name, "location": c["camp"].location,
+             "date": c["camp"].date, "time": c["camp"].time, "type": c["camp"].camp_type,
+             "organizer": c["camp"].organizer, "state": c["camp"].state,
              "district": c["camp"].district, "lat": c["camp"].lat, "lng": c["camp"].lng,
-             "distance_km": round(c["distance"], 1)} 
+             "distance_km": round(c["distance"], 1)}
             for c in camps_with_distance[:6]]
 
 @app.get("/api/citizen/reminders")
 async def get_reminders(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token") or request.headers.get("Authorization","").replace("Bearer ","")
     nearest_phc = "PHC Bhubaneswar"
     user_state = "Odisha"
     user_district = "Khordha"
     camp_id = 4  # Default to PHC Bhubaneswar camp
-    try:
-        user = get_current_user(token, db)
+
+    user = get_user_or_default(request, db)
+    if user:
         nearest_phc = user.nearest_phc or "PHC Bhubaneswar"
         user_state = user.state or "Odisha"
         user_district = user.district or "Khordha"
@@ -326,8 +348,7 @@ async def get_reminders(request: Request, db: Session = Depends(get_db)):
         ).order_by(HealthCamp.date).first()
         if local_camp:
             camp_id = local_camp.id
-    except Exception:
-        pass
+
     return [
         {"disease": "Diabetes Screening", "message": "It has been 6 months since your last checkup.",
          "location": nearest_phc, "date": "Next available slot (10:00 AM - 2:00 PM)",
