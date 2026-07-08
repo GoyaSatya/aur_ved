@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Register - HealthPulse AI</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<!-- Leaflet CSS for Maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card" style="max-width:760px;">
+    <div class="auth-logo">
+      <div style="width:44px;height:44px;background:#16a34a;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;">💚</div>
+      <div>
+        <div style="font-size:17px;font-weight:800;color:#16a34a;">HealthPulse AI</div>
+        <div style="font-size:11px;color:#64748b;">Citizen Registration</div>
+      </div>
+    </div>
+    <div class="auth-title">Create Your Health Profile 🏥</div>
+    <div class="auth-subtitle" data-i18n="health-tips">Get personalized health reminders and AI-powered insights</div>
+    <div style="text-align:right;margin-bottom:12px;">
+      <select class="lang-select" style="padding:6px 10px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;">
+        <option value="en-IN">🇮🇳 English</option>
+        <option value="hi-IN">🇮🇳 हिंదీ</option>
+        <option value="bn-IN">🇮🇳 বাংলা</option>
+        <option value="te-IN">🇮🇳 తెలుగు</option>
+        <option value="ta-IN">🇮🇳 தமிழ்</option>
+        <option value="mr-IN">🇮🇳 मराठी</option>
+        <option value="gu-IN">🇮🇳 ગુજરાતી</option>
+        <option value="kn-IN">🇮🇳 ಕನ್ನಡ</option>
+        <option value="ml-IN">🇮🇳 മലയാളം</option>
+        <option value="or-IN">🇮🇳 ଓଡ଼ିଆ</option>
+      </select>
+    </div>
+    <form id="register-form">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" data-i18n="full-name">Full Name *</label>
+          <input type="text" name="name" class="form-input" placeholder="Your full name" required data-i18n-placeholder="full-name">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="age">Age</label>
+          <input type="number" name="age" class="form-input" placeholder="Your age" data-i18n-placeholder="age">
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" data-i18n="email">Email *</label>
+          <input type="email" name="email" class="form-input" placeholder="email@example.com" required data-i18n-placeholder="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="phone">Phone *</label>
+          <input type="tel" name="phone" class="form-input" placeholder="10-digit mobile" required data-i18n-placeholder="phone">
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" data-i18n="gender">Gender</label>
+          <select name="gender" class="form-input form-select">
+            <option value="" data-i18n="select-gender">Select gender</option>
+            <option data-i18n="male">Male</option><option data-i18n="female">Female</option><option data-i18n="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="state">State</label>
+          <select name="state" id="state-select" class="form-input form-select">
+            <option value="" data-i18n="select-state">Select State</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" data-i18n="district">District</label>
+          <select name="district" id="district-select" class="form-input form-select">
+            <option value="" data-i18n="select-district">Select District</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="village">Village/Town</label>
+          <input type="text" name="village" id="village-input" class="form-input" placeholder="Village/Town" data-i18n-placeholder="village">
+        </div>
+      </div>
+      <!-- Hidden lat/lng -->
+      <input type="hidden" name="lat" id="user-lat">
+      <input type="hidden" name="lng" id="user-lng">
+      <div style="margin-bottom:12px;">
+        <button type="button" id="use-location-btn" class="btn btn-secondary" style="width:100%;">
+          📍 <span data-i18n="use-my-location">Use My Current Location</span>
+        </button>
+      </div>
+      <!-- Map -->
+      <div class="form-group">
+        <label class="form-label" data-i18n="your-location">Your Location</label>
+        <div id="map" style="height:300px;width:100%;border-radius:10px;overflow:hidden;"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="nearest-phc">Nearest PHC</label>
+        <input type="text" name="nearest_phc" class="form-input" placeholder="PHC Bhubaneswar" data-i18n-placeholder="nearest-phc">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="medical-conditions">Medical Conditions (select all that apply)</label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="Diabetes" class="condition-check"> Diabetes</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="Blood Pressure" class="condition-check"> Blood Pressure</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="Cancer" class="condition-check"> Cancer</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="Heart Disease" class="condition-check"> Heart Disease</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="Pregnancy" class="condition-check"> Pregnancy</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="Asthma" class="condition-check"> Asthma</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="Kidney Disease" class="condition-check"> Kidney Disease</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="Tuberculosis" class="condition-check"> Tuberculosis</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;background:#f8fafc;padding:6px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <input type="checkbox" value="None" class="condition-check"> None</label>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" data-i18n="password">Password *</label>
+          <input type="password" name="password" class="form-input" placeholder="Min 6 characters" required data-i18n-placeholder="password">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="confirm-password">Confirm Password *</label>
+          <input type="password" name="confirm_password" class="form-input" placeholder="Repeat password" required data-i18n-placeholder="confirm-password">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="reg-btn">
+        <span id="reg-text" data-i18n="create-health-profile">Create Health Profile 🏥</span>
+      </button>
+    </form>
+    <div class="auth-footer"><span data-i18n="already-account">Already have an account?</span> <a href="/login" data-i18n="sign-in">Sign In</a></div>
+  </div>
+</div>
+<div class="toast-container" id="toasts"></div>
+
+<!-- Leaflet JS for Maps -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="/static/js/app.js?v=8"></script>
+<script>
+// Initialize map with India center
+let map, marker;
+function initMap(lat = 20.5937, lng = 78.9629) {
+  if (map) map.remove();
+  map = L.map('map').setView([lat, lng], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+  marker = L.marker([lat, lng]).addTo(map);
+}
+
+// Load states and districts
+let statesData;
+async function loadStates() {
+  try {
+    const res = await fetch('/api/india/states');
+    statesData = await res.json();
+    const stateSelect = document.getElementById('state-select');
+    stateSelect.innerHTML = '<option value="">Select State</option>';
+    statesData.forEach(state => {
+      const opt = document.createElement('option');
+      opt.value = state;
+      opt.textContent = state;
+      stateSelect.appendChild(opt);
+    });
+    stateSelect.addEventListener('change', onStateChange);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function onStateChange() {
+  const selectedState = document.getElementById('state-select').value;
+  const districtSelect = document.getElementById('district-select');
+  districtSelect.innerHTML = '<option value="">Select District</option>';
+  if (!selectedState) return;
+  try {
+    const res = await fetch(`/api/india/cities/${encodeURIComponent(selectedState)}`);
+    const districts = await res.json();
+    districts.forEach(district => {
+      const opt = document.createElement('option');
+      opt.value = district;
+      opt.textContent = district;
+      districtSelect.appendChild(opt);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function updateMapMarker(lat, lng) {
+  if (!map) initMap(lat, lng);
+  else {
+    map.setView([lat, lng], 12);
+    marker.setLatLng([lat, lng]);
+  }
+}
+
+// Use current location
+document.getElementById('use-location-btn').addEventListener('click', function() {
+  if (!navigator.geolocation) {
+    showToast('Geolocation is not supported by your browser', 'error');
+    return;
+  }
+  const btn = this;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Getting location...';
+  btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    async function(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      document.getElementById('user-lat').value = lat;
+      document.getElementById('user-lng').value = lng;
+      updateMapMarker(lat, lng);
+      // Try to reverse geocode with Nominatim
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+        if (data.address) {
+          const state = data.address.state || data.address['ISO3166-2-lvl4'] || '';
+          const district = data.address.district || data.address.county || data.address.city || '';
+          const village = data.address.village || data.address.town || data.address.suburb || data.address.city || '';
+          // Fill form
+          if (state) {
+            const stateSelect = document.getElementById('state-select');
+            for (let i = 0; i < stateSelect.options.length; i++) {
+              if (stateSelect.options[i].text.toLowerCase().includes(state.toLowerCase()) || 
+                  state.toLowerCase().includes(stateSelect.options[i].text.toLowerCase())) {
+                stateSelect.value = stateSelect.options[i].value;
+                await onStateChange(); // Load districts
+                break;
+              }
+            }
+          }
+          if (district) {
+            const districtSelect = document.getElementById('district-select');
+            for (let i = 0; i < districtSelect.options.length; i++) {
+              if (districtSelect.options[i].text.toLowerCase().includes(district.toLowerCase()) || 
+                  district.toLowerCase().includes(districtSelect.options[i].text.toLowerCase())) {
+                districtSelect.value = districtSelect.options[i].value;
+                break;
+              }
+            }
+            if (!districtSelect.value) {
+              const opt = document.createElement('option');
+              opt.value = district;
+              opt.textContent = district;
+              opt.selected = true;
+              districtSelect.appendChild(opt);
+            }
+          }
+          if (village) {
+            document.getElementById('village-input').value = village;
+          }
+        }
+        showToast('Location detected! 📍', 'success');
+      } catch (err) {
+        console.error(err);
+        showToast('Could not get address, but map updated', 'warning');
+      }
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    },
+    function(error) {
+      console.error(error);
+      let msg = 'Error getting location';
+      if (error.code === 1) msg = 'Permission denied';
+      else if (error.code === 2) msg = 'Position unavailable';
+      else if (error.code === 3) msg = 'Timeout';
+      showToast(msg, 'error');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  );
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  initMap();
+  loadStates();
+});
+
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('reg-btn');
+  const text = document.getElementById('reg-text');
+  const conditions = [...document.querySelectorAll('.condition-check:checked')].map(c => c.value);
+  const form = new FormData(this);
+  form.append('medical_conditions', JSON.stringify(conditions));
+  form.append('role', 'citizen');
+  text.innerHTML = '<span class="loading"></span> Creating...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/auth/register', {method:'POST', body: form});
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('role', data.role);
+      localStorage.setItem('name', data.name);
+      showToast('Profile created! Welcome to HealthPulse AI 🎉', 'success');
+      setTimeout(() => window.location.href = data.redirect, 1000);
+    } else {
+      showToast(data.detail || 'Registration failed', 'error');
+      text.innerHTML = 'Create Health Profile 🏥';
+      btn.disabled = false;
+    }
+  } catch(err) {
+    showToast('Error. Please try again.', 'error');
+    text.innerHTML = 'Create Health Profile 🏥';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

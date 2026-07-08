@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Dashboard - HealthPulse AI</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">💚</div>
+      <div><div class="logo-text">HealthPulse AI</div><div class="logo-tag">Admin Command Center</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="adminSection('overview')"><span class="icon">📊</span> Dashboard Overview</div>
+      <div class="nav-item" onclick="adminSection('approvals')"><span class="icon">✅</span> Employee Approvals</div>
+      <div class="nav-item" onclick="adminSection('phcs')"><span class="icon">🏥</span> PHC Management</div>
+      <div class="nav-item" onclick="adminSection('disease')"><span class="icon">🦠</span> Disease Reports</div>
+      <div class="nav-item" onclick="adminSection('outbreak')"><span class="icon">⚠️</span> Outbreak Prediction</div>
+      <div class="nav-item" onclick="adminSection('forecast')"><span class="icon">📈</span> Demand Forecast</div>
+      <div class="nav-item" onclick="adminSection('map')"><span class="icon">🗺️</span> Live Disease Map</div>
+      <div class="nav-item" onclick="adminSection('digital-twin')"><span class="icon">🔬</span> Digital Twin</div>
+      <div class="nav-item" onclick="adminSection('simulate')"><span class="icon">🎯</span> AI Simulation</div>
+      <div class="nav-item" onclick="adminSection('recommendations')"><span class="icon">🤖</span> AI Recommendations</div>
+      <div class="nav-item" onclick="adminSection('add-report')"><span class="icon">📝</span> Add Disease Report</div>
+      <div class="nav-item" onclick="logout()" style="color:#ef4444;"><span class="icon">🚪</span> Logout</div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="ai-chat-btn" onclick="toggleChat()">🤖 AI Assistant</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Government Admin Dashboard 🏛️</h1>
+        <p>District Health Command Center — Warangal, Telangana</p>
+      </div>
+      <div class="topbar-right">
+        <span style="background:#fee2e2;color:#dc2626;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;">🔴 3 Active Alerts</span>
+        <button class="notif-btn">🔔<span class="notif-badge">3</span></button>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <div class="avatar" style="background:#dc2626;">AD</div>
+      </div>
+    </header>
+    <div class="page-body">
+
+      <!-- OVERVIEW SECTION -->
+      <div id="admin-section-overview">
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card">
+            <div class="stat-icon blue" style="font-size:26px;">👥</div>
+            <div><div class="stat-label">Total Citizens</div>
+            <div class="stat-value blue" id="a-citizens">-</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green" style="font-size:26px;">👨‍⚕️</div>
+            <div><div class="stat-label">Healthcare Employees</div>
+            <div class="stat-value green" id="a-employees">-</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange" style="font-size:26px;">⏳</div>
+            <div><div class="stat-label">Pending Approvals</div>
+            <div class="stat-value orange" id="a-pending">-</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple" style="font-size:26px;">🏥</div>
+            <div><div class="stat-label">Total PHCs</div>
+            <div class="stat-value purple" id="a-phcs">-</div></div>
+          </div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card">
+            <div class="stat-icon red" style="font-size:26px;">🦠</div>
+            <div><div class="stat-label">Disease Reports</div>
+            <div class="stat-value" style="color:#ef4444;" id="a-disease">-</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange" style="font-size:26px;">🚨</div>
+            <div><div class="stat-label">Active Alerts</div>
+            <div class="stat-value orange" id="a-alerts">3</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green" style="font-size:26px;">🏕️</div>
+            <div><div class="stat-label">Health Camps</div>
+            <div class="stat-value green" id="a-camps">-</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red" style="font-size:26px;">⚠️</div>
+            <div><div class="stat-label">High Risk Districts</div>
+            <div class="stat-value" style="color:#ef4444;" id="a-risk">2</div></div>
+          </div>
+        </div>
+        <!-- Charts -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px;">
+          <div class="card">
+            <div class="card-title">Disease Trend (Last 7 Months)</div>
+            <div class="chart-container"><canvas id="disease-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">7-Day Patient Forecast</div>
+            <div class="chart-container"><canvas id="forecast-chart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPROVALS SECTION -->
+      <div id="admin-section-approvals" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Employee Approval Requests ✅</h2>
+        <div class="card">
+          <div id="approvals-list"><div style="text-align:center;padding:30px;color:#64748b;">Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- PHC SECTION -->
+      <div id="admin-section-phcs" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">PHC Management 🏥</h2>
+        <div id="phcs-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
+      </div>
+
+      <!-- DISEASE REPORTS -->
+      <div id="admin-section-disease" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Disease Reports 🦠</h2>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Disease</th><th>Cases</th><th>Village</th><th>District</th><th>Risk</th><th>Date</th></tr></thead>
+            <tbody id="disease-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- OUTBREAK PREDICTION -->
+      <div id="admin-section-outbreak" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">AI Outbreak Prediction Engine ⚠️</h2>
+        <div id="outbreak-cards" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
+      </div>
+
+      <!-- DEMAND FORECAST -->
+      <div id="admin-section-forecast" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">AI Demand Forecast 📈</h2>
+        <div id="forecast-details"></div>
+      </div>
+
+      <!-- LIVE MAP -->
+      <div id="admin-section-map" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">🗺️ All India Live Disease Map</h2>
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+          <select id="map-state-filter" class="form-input form-select" style="max-width:200px;" onchange="handleStateChange(this.value)">
+            <option value="">All States</option>
+          </select>
+          <select id="map-district-filter" class="form-input form-select" style="max-width:200px;" onchange="filterMapByDistrict(this.value)">
+            <option value="">All Districts</option>
+          </select>
+          <div style="display:flex;gap:8px;font-size:12px;flex-wrap:wrap;">
+            <span style="background:#dcfce7;color:#16a34a;padding:4px 10px;border-radius:10px;font-weight:600;">🟢 Good (75+)</span>
+            <span style="background:#fef9c3;color:#ca8a04;padding:4px 10px;border-radius:10px;font-weight:600;">🟡 Medium (50-74)</span>
+            <span style="background:#ffedd5;color:#ea580c;padding:4px 10px;border-radius:10px;font-weight:600;">🟠 High Risk (30-49)</span>
+            <span style="background:#fee2e2;color:#dc2626;padding:4px 10px;border-radius:10px;font-weight:600;">🔴 Critical (&lt;30)</span>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div id="phc-map" style="height:560px;width:100%;"></div>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:#64748b;" id="map-phc-count">Loading PHC locations...</div>
+      </div>
+
+      <!-- DIGITAL TWIN -->
+      <div id="admin-section-digital-twin" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">AI Digital Twin 🔬</h2>
+        <div style="margin-bottom:16px;">
+          <label class="form-label">Select Healthcare Center</label>
+          <select class="form-input form-select" style="max-width:300px;" onchange="loadDigitalTwin(this.value)">
+            <option value="1">PHC Hanamkonda</option>
+            <option value="2">PHC Kazipet</option>
+            <option value="3">CHC Warangal Urban</option>
+            <option value="4">PHC Narsampet</option>
+          </select>
+        </div>
+        <div id="digital-twin-data"></div>
+      </div>
+
+      <!-- AI SIMULATION -->
+      <div id="admin-section-simulate" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">AI Scenario Simulation 🎯</h2>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+          <button onclick="runSimulation('rainfall')" class="btn btn-secondary" style="flex-direction:column;height:80px;gap:6px;">🌧️<span>Heavy Rainfall</span></button>
+          <button onclick="runSimulation('heatwave')" class="btn btn-secondary" style="flex-direction:column;height:80px;gap:6px;">🌡️<span>Heatwave</span></button>
+          <button onclick="runSimulation('festival')" class="btn btn-secondary" style="flex-direction:column;height:80px;gap:6px;">🎉<span>Major Festival</span></button>
+          <button onclick="runSimulation('outbreak')" class="btn btn-danger" style="flex-direction:column;height:80px;gap:6px;">🦠<span>Disease Outbreak</span></button>
+        </div>
+        <div id="simulation-result"></div>
+      </div>
+
+      <!-- AI RECOMMENDATIONS -->
+      <div id="admin-section-recommendations" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">AI Resource Recommendations 🤖</h2>
+        <div id="recommendations-list"></div>
+      </div>
+
+      <!-- ADD DISEASE REPORT -->
+      <div id="admin-section-add-report" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Add Disease Report 📝</h2>
+        <div class="card" style="max-width:600px;">
+          <form id="add-report-form">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Disease Name</label>
+                <select name="disease" class="form-input form-select" required>
+                  <option>Malaria</option><option>Dengue</option><option>Diarrhea</option>
+                  <option>Typhoid</option><option>Cholera</option><option>Tuberculosis</option>
+                  <option>COVID-19</option><option>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Number of Cases</label>
+                <input type="number" name="cases" class="form-input" required>
+              </div>
+            </div>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">Village</label>
+                <input type="text" name="village" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">District</label>
+                <input type="text" name="district" class="form-input" value="Warangal" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">State</label>
+                <input type="text" name="state" class="form-input" value="Telangana" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Report</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- AI Chatbot -->
+<div class="chatbot-panel" id="chatbot">
+  <div class="chatbot-header">
+    <div><div style="font-weight:700;">🤖 AI Admin Assistant</div><div style="font-size:11px;opacity:0.85;">District Health Intelligence</div></div>
+    <button class="chatbot-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chatbot-messages" id="chat-msgs">
+    <div class="chat-msg bot">👋 Hello Admin! Ask me about outbreak risks, district health status, or resource recommendations.</div>
+  </div>
+  <div class="chatbot-input">
+    <input type="text" id="chat-input" placeholder="Ask about district health..." onkeypress="if(event.key==='Enter')sendChat('admin')">
+    <button class="chatbot-send" onclick="sendChat('admin')">Send</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<script src="/static/js/app.js"></script>
+<script src="/static/js/admin.js"></script>
+</body>
+</html>

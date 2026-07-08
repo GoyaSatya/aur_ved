@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Employee Dashboard - HealthPulse AI</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon" style="background:#7c3aed;">👨‍⚕️</div>
+      <div><div class="logo-text" style="color:#7c3aed;">HealthPulse AI</div><div class="logo-tag">Employee Portal</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="empSection('overview')"><span class="icon">📊</span> Overview</div>
+      <div class="nav-item" onclick="empSection('medicine')"><span class="icon">💊</span> Medicine Stock</div>
+      <div class="nav-item" onclick="empSection('report-disease')"><span class="icon">🦠</span> Report Disease</div>
+      <div class="nav-item" onclick="empSection('patients')"><span class="icon">👥</span> Patient Data</div>
+      <div class="nav-item" onclick="empSection('ai-recs')"><span class="icon">🤖</span> AI Recommendations</div>
+      <div class="nav-item" onclick="empSection('alerts')"><span class="icon">🚨</span> Alerts</div>
+      <div class="nav-item" onclick="logout()" style="color:#ef4444;"><span class="icon">🚪</span> Logout</div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="ai-chat-btn" style="background:#ede9fe;color:#7c3aed;border-color:#7c3aed;" onclick="toggleChat()">🤖 AI Assistant</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Healthcare Employee Dashboard 👨‍⚕️</h1>
+        <p>PHC Hanamkonda — Warangal District</p>
+      </div>
+      <div class="topbar-right">
+        <span style="background:#ede9fe;color:#7c3aed;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;">Dr. Goyanshi Mohanty</span>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <div class="avatar" style="background:#7c3aed;">GM</div>
+      </div>
+    </header>
+    <div class="page-body">
+
+      <!-- OVERVIEW -->
+      <div id="emp-section-overview">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue" style="font-size:24px;">👥</div>
+            <div><div class="stat-label">Patients Today</div><div class="stat-value blue">47</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green" style="font-size:24px;">🛏️</div>
+            <div><div class="stat-label">Beds Available</div><div class="stat-value green">12/30</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange" style="font-size:24px;">⚠️</div>
+            <div><div class="stat-label">Stock Alerts</div><div class="stat-value orange">3</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple" style="font-size:24px;">🩺</div>
+            <div><div class="stat-label">Doctors Present</div><div class="stat-value purple">3/3</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:4px;">
+          <div class="card">
+            <div class="card-title">Medicine Stock Overview</div>
+            <div id="emp-stock-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">🤖 AI Alerts for Today</div>
+            <div id="emp-alerts">
+              <div style="background:#fee2e2;border-left:4px solid #ef4444;border-radius:6px;padding:10px;margin-bottom:10px;font-size:13px;">
+                🔴 <b>Critical:</b> Oxygen cylinders below 30%. Request refill immediately.
+              </div>
+              <div style="background:#ffedd5;border-left:4px solid #f97316;border-radius:6px;padding:10px;margin-bottom:10px;font-size:13px;">
+                🟠 <b>Warning:</b> Malaria kit stock at 32%. Expected demand ↑ due to rainfall.
+              </div>
+              <div style="background:#fef9c3;border-left:4px solid #eab308;border-radius:6px;padding:10px;font-size:13px;">
+                🟡 <b>Info:</b> Patient load forecast ↑ 25% tomorrow. Prepare for surge.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDICINE STOCK -->
+      <div id="emp-section-medicine" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Medicine Stock Management 💊</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+          <div class="card">
+            <div class="card-title">Current Stock Levels</div>
+            <div id="full-stock-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Update Stock</div>
+            <form id="stock-form">
+              <div class="form-group">
+                <label class="form-label">Medicine Name</label>
+                <select name="medicine" class="form-input form-select">
+                  <option>ORS Packets</option><option>Paracetamol</option>
+                  <option>Malaria Kit</option><option>IV Fluids</option>
+                  <option>Oxygen Cylinders</option><option>BP Medicines</option>
+                  <option>Antibiotics</option><option>Insulin</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Action</label>
+                <select name="action" class="form-input form-select">
+                  <option value="add">Add to Stock</option>
+                  <option value="set">Set New Quantity</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Quantity</label>
+                <input type="number" name="quantity" class="form-input" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Update Stock</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORT DISEASE -->
+      <div id="emp-section-report-disease" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Report Disease Cases 🦠</h2>
+        <div class="card" style="max-width:540px;">
+          <form id="disease-report-form">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Disease</label>
+                <select name="disease" class="form-input form-select" required>
+                  <option>Malaria</option><option>Dengue</option><option>Diarrhea</option>
+                  <option>Typhoid</option><option>Cholera</option><option>TB</option><option>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Number of Cases</label>
+                <input type="number" name="cases" class="form-input" required>
+              </div>
+            </div>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label class="form-label">Village</label>
+                <input type="text" name="village" class="form-input" value="Hanamkonda" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">District</label>
+                <input type="text" name="district" class="form-input" value="Warangal" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">State</label>
+                <input type="text" name="state" class="form-input" value="Telangana" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Report</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- AI RECOMMENDATIONS -->
+      <div id="emp-section-ai-recs" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">AI Recommendations 🤖</h2>
+        <div id="emp-recs-list"></div>
+      </div>
+
+      <!-- PATIENT DATA SECTION -->
+      <div id="emp-section-patients" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Patient Data 👥</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+          <!-- Add New Patient Form -->
+          <div class="card">
+            <div class="card-title">Add New Patient</div>
+            <form id="patient-form">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Patient Name</label>
+                  <input type="text" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Age</label>
+                  <input type="number" name="age" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Gender</label>
+                  <select name="gender" class="form-input form-select" required>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone</label>
+                  <input type="text" name="phone" class="form-input">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Disease</label>
+                <input type="text" name="disease" class="form-input" placeholder="e.g., Diabetes, Hypertension">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Medicines (comma separated)</label>
+                <input type="text" name="medicines" class="form-input" placeholder="e.g., Metformin, Aspirin">
+              </div>
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label class="form-label">Village</label>
+                  <input type="text" name="village" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">District</label>
+                  <input type="text" name="district" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">State</label>
+                  <select name="state" id="patient-state-select" class="form-input form-select"></select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">PHC Name</label>
+                <input type="text" name="phc_name" class="form-input">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Prescription Photo/PDF</label>
+                <input type="file" name="prescription_photo" class="form-input" accept="image/*,.pdf">
+              </div>
+              <button type="submit" class="btn btn-primary">Add Patient</button>
+            </form>
+          </div>
+          <!-- Patients List -->
+          <div class="card">
+            <div class="card-title">Patients List</div>
+            <div id="patients-list" style="max-height:600px;overflow-y:auto;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="emp-section-alerts" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">System Alerts 🚨</h2>
+        <div class="card">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="background:#fee2e2;border-radius:8px;padding:14px;font-size:14px;">🔴 <b>Critical:</b> Oxygen cylinders need immediate refill at PHC Kazipet</div>
+            <div style="background:#ffedd5;border-radius:8px;padding:14px;font-size:14px;">🟠 <b>High:</b> Malaria outbreak predicted in Kazipet within 5 days</div>
+            <div style="background:#fef9c3;border-radius:8px;padding:14px;font-size:14px;">🟡 <b>Medium:</b> Patient load forecast +25% due to weather tomorrow</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Chatbot -->
+<div class="chatbot-panel" id="chatbot">
+  <div class="chatbot-header" style="background:#7c3aed;">
+    <div><div style="font-weight:700;">🤖 AI Clinical Assistant</div><div style="font-size:11px;opacity:0.85;">Medicine & Disease Intelligence</div></div>
+    <button class="chatbot-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chatbot-messages" id="chat-msgs">
+    <div class="chat-msg bot">👋 Hello Doctor! I can help with medicine forecasts, disease reports, and resource recommendations.</div>
+  </div>
+  <div class="chatbot-input">
+    <input type="text" id="chat-input" placeholder="Ask about medicines, outbreaks..." onkeypress="if(event.key==='Enter')sendChat('employee')">
+    <button class="chatbot-send" style="background:#7c3aed;" onclick="sendChat('employee')">Send</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<script src="/static/js/app.js?v=4"></script>
+<script src="/static/js/employee.js?v=4"></script>
+</body>
+</html>

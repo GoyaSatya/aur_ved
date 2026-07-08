@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthPulse AI - Predict Tomorrow. Prepare Today. Protect Everyone.</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<style>
+.land-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 60px;
+  background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;
+  border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.land-logo{display:flex;align-items:center;gap:10px;}
+.land-logo-icon{width:40px;height:40px;background:#16a34a;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;color:white;font-size:22px;}
+.land-logo-text{font-size:18px;font-weight:800;color:#16a34a;}
+.land-nav-links{display:flex;align-items:center;gap:28px;}
+.land-nav-links a{font-size:14px;font-weight:500;color:#64748b;transition:.2s;}
+.land-nav-links a:hover{color:#16a34a;}
+.land-nav-btns{display:flex;gap:10px;}
+.hero{background:linear-gradient(135deg,#f0fdf4 0%,#e0f2fe 60%,#ede9fe 100%);
+  padding:80px 60px;display:flex;align-items:center;gap:60px;min-height:88vh;}
+.hero-content{flex:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:#dcfce7;color:#16a34a;
+  padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:20px;}
+.hero h1{font-size:52px;font-weight:900;line-height:1.1;margin-bottom:16px;color:#0f172a;}
+.hero h1 span{color:#16a34a;}
+.hero-tag{font-size:18px;color:#475569;margin-bottom:28px;font-style:italic;font-weight:500;}
+.hero p{font-size:16px;color:#64748b;max-width:560px;margin-bottom:36px;line-height:1.7;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.hero-stats{display:flex;gap:32px;margin-top:40px;}
+.hero-stat{text-align:center;}
+.hero-stat-num{font-size:32px;font-weight:900;color:#16a34a;}
+.hero-stat-label{font-size:13px;color:#64748b;font-weight:500;}
+.hero-visual{flex:1;display:flex;justify-content:center;align-items:center;}
+.dashboard-preview{background:white;border-radius:20px;box-shadow:0 25px 80px rgba(0,0,0,0.15);
+  padding:20px;max-width:480px;width:100%;border:1px solid #e2e8f0;}
+</style>
+</head>
+<body>
+<nav class="land-nav">
+  <div class="land-logo">
+    <div class="land-logo-icon">💚</div>
+    <div><div class="land-logo-text">HealthPulse AI</div>
+    <div style="font-size:10px;color:#64748b">Government Health Intelligence</div></div>
+  </div>
+  <div class="land-nav-links">
+    <a href="#features">Features</a>
+    <a href="#ai">AI Modules</a>
+    <a href="#roles">For You</a>
+    <a href="#about">About</a>
+  </div>
+  <div class="land-nav-btns">
+    <a href="/login" class="btn btn-secondary">Login</a>
+    <a href="/register" class="btn btn-primary">Get Started</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🏆 AI-Powered Government Health Platform</div>
+    <h1>HealthPulse <span>AI</span></h1>
+    <div class="hero-tag">"Predict Tomorrow. Prepare Today. Protect Everyone."</div>
+    <p>India's most advanced AI platform for disease outbreak prediction, healthcare resource forecasting, and citizen preventive care — connecting every PHC, hospital, and citizen in one intelligent ecosystem.</p>
+    <div class="hero-btns">
+      <a href="/register" class="btn btn-primary" style="font-size:15px;padding:13px 28px;">🚀 Start Free</a>
+      <a href="/login" class="btn btn-secondary" style="font-size:15px;padding:13px 28px;">📊 View Demo</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">AI Systems</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">10K+</div><div class="hero-stat-label">PHCs Connected</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">93%</div><div class="hero-stat-label">Prediction Accuracy</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">24/7</div><div class="hero-stat-label">Live Monitoring</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="dashboard-preview">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #e2e8f0;">
+        <div style="width:28px;height:28px;background:#16a34a;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;">💚</div>
+        <span style="font-weight:700;color:#16a34a;font-size:14px;">HealthPulse AI</span>
+        <span style="margin-left:auto;font-size:11px;background:#dcfce7;color:#16a34a;padding:3px 8px;border-radius:10px;font-weight:600;">● LIVE</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:#f0fdf4;border-radius:10px;padding:12px;">
+          <div style="font-size:11px;color:#64748b">Health Score</div>
+          <div style="font-size:24px;font-weight:800;color:#16a34a">78</div>
+          <div style="font-size:11px;color:#16a34a;font-weight:600">Good ✓</div>
+        </div>
+        <div style="background:#eff6ff;border-radius:10px;padding:12px;">
+          <div style="font-size:11px;color:#64748b">Outbreak Risk</div>
+          <div style="font-size:24px;font-weight:800;color:#f97316">High</div>
+          <div style="font-size:11px;color:#f97316;font-weight:600">Malaria ↑</div>
+        </div>
+      </div>
+      <div style="background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;">
+        <b>🤖 AI Alert:</b> Malaria outbreak predicted in Kazipet within 5 days. Confidence: 78%
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:10px;font-size:12px;">
+        <b>📅 Reminder:</b> Diabetes checkup overdue 6 months. Free camp tomorrow at PHC Hanamkonda.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="padding:80px 60px;background:white;">
+  <div style="text-align:center;margin-bottom:50px;">
+    <h2 style="font-size:36px;font-weight:900;margin-bottom:12px;">Three AI Systems. One Ecosystem.</h2>
+    <p style="font-size:16px;color:#64748b;max-width:600px;margin:0 auto;">Every module talks to each other — creating a living, breathing health intelligence network.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto;">
+    <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:16px;padding:28px;border:1px solid #bbf7d0;">
+      <div style="font-size:40px;margin-bottom:14px;">🦠</div>
+      <h3 style="font-size:18px;font-weight:800;margin-bottom:10px;color:#15803d;">Disease Ripple Prediction AI</h3>
+      <p style="font-size:14px;color:#64748b;line-height:1.6;">Monitors live disease reports from every PHC. Predicts outbreaks 5-7 days before they happen. Shows spread animation on live map.</p>
+      <div style="margin-top:14px;font-size:13px;color:#16a34a;font-weight:600;">XGBoost + LSTM + Risk Scoring →</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:28px;border:1px solid #bfdbfe;">
+      <div style="font-size:40px;margin-bottom:14px;">🧠</div>
+      <h3 style="font-size:18px;font-weight:800;margin-bottom:10px;color:#1d4ed8;">Human Behavior & Demand AI</h3>
+      <p style="font-size:14px;color:#64748b;line-height:1.6;">Weather, festivals, school reopening, migration — all inputs to forecast medicine demand, doctor needs, and bed requirements before patients arrive.</p>
+      <div style="margin-top:14px;font-size:13px;color:#1d4ed8;font-weight:600;">Gradient Boost + Time Series →</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#fdf4ff,#ede9fe);border-radius:16px;padding:28px;border:1px solid #ddd6fe;">
+      <div style="font-size:40px;margin-bottom:14px;">🔔</div>
+      <h3 style="font-size:18px;font-weight:800;margin-bottom:10px;color:#7c3aed;">Smart Checkup Reminder System</h3>
+      <p style="font-size:14px;color:#64748b;line-height:1.6;">Monitors every citizen's health conditions, last checkup dates, and nearby camps. Sends personalized reminders at the right time.</p>
+      <div style="margin-top:14px;font-size:13px;color:#7c3aed;font-weight:600;">Rule Engine + ML Scoring →</div>
+    </div>
+  </div>
+</section>
+
+<section id="roles" style="padding:80px 60px;background:#f8fafc;">
+  <div style="text-align:center;margin-bottom:50px;">
+    <h2 style="font-size:36px;font-weight:900;margin-bottom:12px;">Built for Everyone in Healthcare</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:900px;margin:0 auto;">
+    <div style="background:white;border-radius:16px;padding:28px;box-shadow:0 4px 12px rgba(0,0,0,0.06);text-align:center;">
+      <div style="font-size:48px;margin-bottom:14px;">🏛️</div>
+      <h3 style="font-size:17px;font-weight:800;margin-bottom:10px;">Government Admin</h3>
+      <p style="font-size:13px;color:#64748b;margin-bottom:18px;">Disease heatmaps, AI forecasts, resource management, approve employees, command center</p>
+      <a href="/login" class="btn btn-primary btn-sm">Admin Login</a>
+    </div>
+    <div style="background:white;border-radius:16px;padding:28px;box-shadow:0 4px 12px rgba(0,0,0,0.06);text-align:center;">
+      <div style="font-size:48px;margin-bottom:14px;">👨‍⚕️</div>
+      <h3 style="font-size:17px;font-weight:800;margin-bottom:10px;">Healthcare Employee</h3>
+      <p style="font-size:13px;color:#64748b;margin-bottom:18px;">Update medicine stock, report disease cases, view AI recommendations, request transfers</p>
+      <a href="/register/employee" class="btn btn-secondary btn-sm">Register</a>
+    </div>
+    <div style="background:white;border-radius:16px;padding:28px;box-shadow:0 4px 12px rgba(0,0,0,0.06);text-align:center;">
+      <div style="font-size:48px;margin-bottom:14px;">👤</div>
+      <h3 style="font-size:17px;font-weight:800;margin-bottom:10px;">Citizen</h3>
+      <p style="font-size:13px;color:#64748b;margin-bottom:18px;">Health profile, checkup reminders, nearby camps, vaccination schedule, AI health score</p>
+      <a href="/register" class="btn btn-primary btn-sm">Register Free</a>
+    </div>
+  </div>
+</section>
+
+<footer style="background:#0f172a;color:white;padding:40px 60px;text-align:center;">
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;">
+    <div style="width:32px;height:32px;background:#16a34a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">💚</div>
+    <span style="font-size:18px;font-weight:800;color:#16a34a;">HealthPulse AI</span>
+  </div>
+  <p style="color:#94a3b8;font-size:14px;margin-bottom:8px;">"Predict Tomorrow. Prepare Today. Protect Everyone."</p>
+  <p style="color:#475569;font-size:13px;">© 2024 HealthPulse AI • Government Health Intelligence Platform • Built with 💚 for India</p>
+  <div style="margin-top:16px;display:flex;justify-content:center;gap:20px;">
+    <a href="/login" style="color:#16a34a;font-size:13px;font-weight:600;">Login</a>
+    <a href="/register" style="color:#16a34a;font-size:13px;font-weight:600;">Register</a>
+    <a href="/register/employee" style="color:#16a34a;font-size:13px;font-weight:600;">Employee Registration</a>
+  </div>
+</footer>
+</body>
+</html>

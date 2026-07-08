@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Dashboard - HealthPulse AI</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">💚</div>
+      <div>
+        <div class="logo-text">HealthPulse AI</div>
+        <div class="logo-tag" data-i18n="citizen-portal">Citizen Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showSection('dashboard')"><span class="icon">🏠</span> <span data-i18n="dashboard">Dashboard</span></div>
+      <div class="nav-item" onclick="showSection('myhealth')"><span class="icon">❤️</span> <span data-i18n="my-health">My Health</span></div>
+      <div class="nav-item" onclick="showSection('reminders')"><span class="icon">🔔</span> <span data-i18n="reminders">Checkup Reminders</span></div>
+      <div class="nav-item" onclick="showSection('camps')"><span class="icon">🏕️</span> <span data-i18n="camps">Upcoming Camps</span></div>
+      <div class="nav-item" onclick="showSection('appointments')"><span class="icon">📅</span> <span data-i18n="appointments">Appointments</span></div>
+      <div class="nav-item" onclick="showSection('history')"><span class="icon">📋</span> <span data-i18n="history">Medical History</span></div>
+      <div class="nav-item" onclick="showSection('prescriptions')"><span class="icon">💊</span> <span data-i18n="prescriptions">Prescriptions</span></div>
+      <div class="nav-item" onclick="showSection('vaccinations')"><span class="icon">💉</span> <span data-i18n="vaccinations">Vaccinations</span></div>
+      <div class="nav-item" onclick="showSection('family')"><span class="icon">👨‍👩‍👧</span> <span data-i18n="family">Family Members</span></div>
+      <div class="nav-item" onclick="showSection('tips')"><span class="icon">💡</span> <span data-i18n="tips">Health Tips</span></div>
+      <div class="nav-item" onclick="showSection('emergency')"><span class="icon">🚨</span> <span data-i18n="emergency">Emergency Contacts</span></div>
+      <div class="nav-item" onclick="showSection('settings')"><span class="icon">⚙️</span> <span data-i18n="settings">Settings</span></div>
+      <div class="nav-item" onclick="logout()" style="color:#ef4444;"><span class="icon">🚪</span> <span data-i18n="logout">Logout</span></div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="ai-chat-btn" onclick="toggleChat()">
+        <span>🤖</span> <span data-i18n="chatbot-greeting">Talk to AI Assistant</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 id="greeting">Hello, Satya Prakash 👋</h1>
+        <p data-i18n="health-tips">Take charge of your health. Stay safe, stay healthy.</p>
+      </div>
+      <div class="topbar-right">
+        <select class="lang-select">
+          <option value="en-IN">🇮🇳 English</option>
+          <option value="hi-IN">🇮🇳 हिंदी</option>
+          <option value="bn-IN">🇮🇳 বাংলা</option>
+          <option value="te-IN">🇮🇳 తెలుగు</option>
+          <option value="ta-IN">🇮🇳 தமிழ்</option>
+          <option value="mr-IN">🇮🇳 मराठी</option>
+          <option value="gu-IN">🇮🇳 ગુજરાતી</option>
+          <option value="kn-IN">🇮🇳 ಕನ್ನಡ</option>
+          <option value="ml-IN">🇮🇳 മലയാളം</option>
+          <option value="or-IN">🇮🇳 ଓଡ଼ିଆ</option>
+        </select>
+        <button class="notif-btn" onclick="showSection('notifications')">
+          🔔<span class="notif-badge" id="notif-count">3</span>
+        </button>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+        <div class="avatar" id="user-avatar">SP</div>
+      </div>
+    </header>
+
+    <div class="page-body">
+      <!-- DASHBOARD SECTION -->
+      <div id="section-dashboard">
+        <!-- Stats Row -->
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card">
+            <div style="position:relative;width:80px;height:80px;flex-shrink:0;">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#e2e8f0" stroke-width="7"/>
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#16a34a" stroke-width="7"
+                  stroke-dasharray="213.6" stroke-dashoffset="46" stroke-linecap="round"
+                  transform="rotate(-90 40 40)"/>
+              </svg>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                <div style="font-size:18px;font-weight:800;color:#16a34a;" id="score-num">78</div>
+              </div>
+            </div>
+            <div>
+              <div class="stat-label" data-i18n="health-score">Health Score</div>
+              <div class="stat-value green" id="stat-score">78/100</div>
+              <div class="stat-status good" id="stat-score-label" data-i18n="good">Good</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue" style="font-size:26px;">📅</div>
+            <div>
+              <div class="stat-label" data-i18n="upcoming-checkups">Upcoming Checkups</div>
+              <div class="stat-value blue" id="stat-checkups">2</div>
+              <div class="stat-status" style="color:#64748b;" id="stat-next">Next: 15 Jul 2024</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red" style="font-size:26px;">🩺</div>
+            <div>
+              <div class="stat-label" data-i18n="active-conditions">Active Conditions</div>
+              <div class="stat-value" style="color:#ef4444;" id="stat-conditions">2</div>
+              <div class="stat-status" style="color:#64748b;" id="stat-cond-list">Diabetes, BP</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green" style="font-size:26px;">📊</div>
+            <div>
+              <div class="stat-label" data-i18n="bmi">BMI</div>
+              <div class="stat-value green" id="stat-bmi">24.6</div>
+              <div class="stat-status normal" id="stat-bmi-label">Normal</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+          <!-- Next Checkup Reminder -->
+          <div class="card">
+            <div class="card-title" data-i18n="reminders">Next Checkup Reminder</div>
+            <div class="reminder-card" id="reminder-card">
+              <div class="reminder-header">
+                <div class="reminder-icon">❤️</div>
+                <div>
+                  <div class="reminder-title" id="rem-title" data-i18n="diabetes-screening">Diabetes Screening</div>
+                </div>
+              </div>
+              <div class="reminder-msg" id="rem-msg">It has been 6 months since your last checkup.</div>
+              <div class="reminder-meta">
+                <div class="reminder-meta-item">📍 <span id="rem-loc">PHC Bhubaneswar</span></div>
+                <div class="reminder-meta-item">📅 <span id="rem-date">15 July 2024, 10:00 AM - 2:00 PM</span></div>
+            </div>
+              <button class="btn btn-primary btn-full" id="book-btn" onclick="bookAppointment(1)">
+                📅 <span data-i18n="book-appointment">Book Appointment</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Upcoming Camps -->
+          <div class="card">
+            <div class="card-title" data-i18n="upcoming-camps">Upcoming Health Camps Near You</div>
+            <div id="camps-list">
+              <div style="text-align:center;padding:20px;color:#64748b;">Loading camps...</div>
+            </div>
+            <div style="text-align:center;margin-top:12px;">
+              <button class="btn btn-secondary btn-sm" onclick="showSection('camps')"><span data-i18n="view-all-camps">View All Camps →</span></button>
+            </div>
+          </div>
+
+          <!-- Health Tips -->
+          <div class="card">
+            <div class="card-title">Health Tips for You 💡</div>
+            <div class="tip-item"><span class="tip-icon">💧</span> Drink plenty of water</div>
+            <div class="tip-item"><span class="tip-icon">💊</span> Take your medicines on time</div>
+            <div class="tip-item"><span class="tip-icon">🚶</span> Walk 30 minutes daily</div>
+            <div class="tip-item"><span class="tip-icon">🥗</span> Eat a balanced diet</div>
+            <div class="tip-item"><span class="tip-icon">😴</span> Sleep 7-8 hours daily</div>
+            <div class="tip-item"><span class="tip-icon">🧘</span> Manage stress with yoga</div>
+          </div>
+        </div>
+
+        <!-- Bottom Grid: Health Overview + Notifications -->
+        <div class="dashboard-grid-2">
+          <!-- Health Overview -->
+          <div class="card">
+            <div class="card-title">Your Health Overview</div>
+            <div class="health-overview-grid">
+              <div class="health-metric">
+                <div class="health-metric-icon">🩺</div>
+                <div class="health-metric-label">Blood Pressure</div>
+                <div class="health-metric-value" id="bp-val">120/80</div>
+                <div class="health-metric-status status-normal" id="bp-status">Normal</div>
+              </div>
+              <div class="health-metric">
+                <div class="health-metric-icon">🩸</div>
+                <div class="health-metric-label">Blood Sugar</div>
+                <div class="health-metric-value" id="sugar-val">110 mg/dl</div>
+                <div class="health-metric-status status-normal" id="sugar-status">Normal</div>
+              </div>
+              <div class="health-metric">
+                <div class="health-metric-icon">⚖️</div>
+                <div class="health-metric-label">Weight</div>
+                <div class="health-metric-value" id="weight-val">70 kg</div>
+                <div class="health-metric-status status-normal" id="weight-status">Normal</div>
+              </div>
+              <div class="health-metric">
+                <div class="health-metric-icon">🕐</div>
+                <div class="health-metric-label">Last Checkup</div>
+                <div class="health-metric-value" style="font-size:15px;" id="last-checkup">6 months ago</div>
+                <div class="health-metric-status status-warning">Overdue</div>
+              </div>
+            </div>
+            <div style="margin-top:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:13px;font-weight:600;">Overall Health Progress</span>
+                <span style="font-size:13px;color:#16a34a;font-weight:700;" id="health-pct">78%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill green" id="health-bar" style="width:78%"></div></div>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div class="card">
+            <div class="card-title">Recent Notifications 🔔</div>
+            <div id="notif-list">
+              <div class="notif-item">
+                <div class="notif-dot high"></div>
+                <div class="notif-text">You have a due Diabetes checkup.</div>
+                <div class="notif-time">1 day ago</div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-dot medium"></div>
+                <div class="notif-text">Free health camp near you tomorrow.</div>
+                <div class="notif-time">2 days ago</div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-dot medium"></div>
+                <div class="notif-text">Your BP checkup is due.</div>
+                <div class="notif-time">5 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- end dashboard section -->
+
+      <!-- MY HEALTH SECTION -->
+      <div id="section-myhealth" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">My Health Profile 📋</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+          <div class="card">
+            <div class="card-title">Personal Information</div>
+            <div id="profile-info" style="display:flex;flex-direction:column;gap:10px;font-size:14px;">
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8f0;">
+                <span style="color:#64748b;">Name</span><span style="font-weight:600;" id="p-name">-</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8f0;">
+                <span style="color:#64748b;">Age</span><span style="font-weight:600;" id="p-age">-</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8f0;">
+                <span style="color:#64748b;">Gender</span><span style="font-weight:600;" id="p-gender">-</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8f0;">
+                <span style="color:#64748b;">Phone</span><span style="font-weight:600;" id="p-phone">-</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8f0;">
+                <span style="color:#64748b;">Village</span><span style="font-weight:600;" id="p-village">-</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8f0;">
+                <span style="color:#64748b;">District</span><span style="font-weight:600;" id="p-district">-</span></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;">
+                <span style="color:#64748b;">Nearest PHC</span><span style="font-weight:600;" id="p-phc">-</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Medical Conditions</div>
+            <div id="p-conditions" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+            <div style="margin-top:24px;">
+              <div class="card-title" style="font-size:14px;">Risk Assessment</div>
+              <div style="margin-top:10px;display:flex;flex-direction:column;gap:12px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-size:13px;">Health Score</span>
+                    <span style="font-size:13px;font-weight:700;color:#16a34a;" id="risk-health-score">78%</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill green" id="risk-health-bar" style="width:78%"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-size:13px;">Disease Risk</span>
+                    <span style="font-size:13px;font-weight:700;color:#f97316;" id="risk-disease-score">42%</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:42%;background:#f97316;" id="risk-disease-bar"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMPS SECTION -->
+      <div id="section-camps" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Upcoming Health Camps 🏕️</h2>
+        <div id="all-camps" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;"></div>
+      </div>
+
+      <!-- REMINDERS SECTION -->
+      <div id="section-reminders" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Checkup Reminders 🔔</h2>
+        <div id="all-reminders" style="display:flex;flex-direction:column;gap:14px;"></div>
+      </div>
+
+      <!-- APPOINTMENTS SECTION -->
+      <div id="section-appointments" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">My Appointments 📅</h2>
+        <div class="card" style="text-align:center;padding:40px;">
+          <div style="font-size:48px;margin-bottom:12px;">📅</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:8px;">No upcoming appointments</div>
+          <div style="color:#64748b;margin-bottom:20px;">Book an appointment from the health camps section</div>
+          <button class="btn btn-primary" onclick="showSection('camps')">Browse Health Camps</button>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS SECTION -->
+      <div id="section-notifications" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">All Notifications 🔔</h2>
+        <div class="card" id="all-notifs-list"></div>
+      </div>
+
+      <!-- SETTINGS SECTION -->
+      <div id="section-settings" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Settings ⚙️</h2>
+        <div class="card">
+          <div class="card-title">Theme Preferences</div>
+          <button class="btn btn-secondary" onclick="toggleTheme()">🌙 Toggle Dark/Light Mode</button>
+        </div>
+      </div>
+
+      <!-- Placeholder sections -->
+      <div id="section-history" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Medical History 📋</h2>
+        <div class="card"><div style="text-align:center;padding:40px;color:#64748b;">Medical history records will appear here.</div></div>
+      </div>
+      <div id="section-prescriptions" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Prescriptions 💊</h2>
+        <div class="card"><div style="text-align:center;padding:40px;color:#64748b;">Your prescriptions will appear here.</div></div>
+      </div>
+      <div id="section-vaccinations" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Vaccination Schedule 💉</h2>
+        <div class="card"><div style="text-align:center;padding:40px;color:#64748b;">Vaccination records will appear here.</div></div>
+      </div>
+      <div id="section-family" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Family Members 👨‍👩‍👧</h2>
+        <div class="card"><div style="text-align:center;padding:40px;color:#64748b;">Add family members to track their health too.</div></div>
+      </div>
+      <div id="section-tips" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Health Tips 💡</h2>
+        <div class="card"><div style="text-align:center;padding:40px;color:#64748b;">Personalized health tips will appear here.</div></div>
+      </div>
+      <div id="section-emergency" style="display:none;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:20px;">Emergency Contacts 🚨</h2>
+        <div class="card">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <div style="background:#fee2e2;border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:28px;margin-bottom:6px;">🚑</div>
+              <div style="font-weight:700;color:#dc2626;">Ambulance</div>
+              <div style="font-size:20px;font-weight:800;color:#dc2626;">108</div>
+            </div>
+            <div style="background:#dbeafe;border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:28px;margin-bottom:6px;">🚔</div>
+              <div style="font-weight:700;color:#1d4ed8;">Police</div>
+              <div style="font-size:20px;font-weight:800;color:#1d4ed8;">100</div>
+            </div>
+            <div style="background:#dcfce7;border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:28px;margin-bottom:6px;">🏥</div>
+              <div style="font-weight:700;color:#16a34a;">PHC Helpline</div>
+              <div style="font-size:20px;font-weight:800;color:#16a34a;">104</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- AI Chatbot -->
+<div class="chatbot-panel" id="chatbot">
+  <div class="chatbot-header">
+    <div><div style="font-weight:700;">🤖 AI Health Assistant</div><div style="font-size:11px;opacity:0.85;">Ask me anything about your health</div></div>
+    <button class="chatbot-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chatbot-messages" id="chat-msgs">
+    <div class="chat-msg bot">👋 Hello! I'm your HealthPulse AI Assistant. Ask me about your checkups, nearby camps, medicines, or health tips!</div>
+  </div>
+  <div class="chatbot-input">
+    <input type="text" id="chat-input" placeholder="Ask about your health..." onkeypress="if(event.key==='Enter')sendChat()">
+    <button class="chatbot-send" onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<script src="/static/js/app.js"></script>
+<script src="/static/js/citizen.js"></script>
+</body>
+</html>

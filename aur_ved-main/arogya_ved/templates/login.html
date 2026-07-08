@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Login - HealthPulse AI</title>
+<link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div style="width:44px;height:44px;background:#16a34a;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;">💚</div>
+      <div>
+        <div style="font-size:17px;font-weight:800;color:#16a34a;">HealthPulse AI</div>
+        <div style="font-size:11px;color:#64748b;">Government Health Platform</div>
+      </div>
+    </div>
+    <div class="auth-title">Welcome back 👋</div>
+    <div class="auth-subtitle" data-i18n="sign-in">Sign in to your HealthPulse AI account</div>
+
+    <div style="text-align:right;margin-bottom:12px;">
+      <select class="lang-select" style="padding:6px 10px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;">
+        <option value="en-IN">🇮🇳 English</option>
+        <option value="hi-IN">🇮🇳 हिंदी</option>
+        <option value="bn-IN">🇮🇳 বাংলা</option>
+        <option value="te-IN">🇮🇳 తెలుగు</option>
+        <option value="ta-IN">🇮🇳 தமிழ்</option>
+        <option value="mr-IN">🇮🇳 मराठी</option>
+        <option value="gu-IN">🇮🇳 ગુજરાતી</option>
+        <option value="kn-IN">🇮🇳 ಕನ್ನಡ</option>
+        <option value="ml-IN">🇮🇳 മലയാളം</option>
+        <option value="or-IN">🇮🇳 ଓଡ଼ିଆ</option>
+      </select>
+    </div>
+
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:20px;">
+      <div style="font-weight:700;color:#16a34a;margin-bottom:10px;font-size:13px;">🔐 Quick Demo Login</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <button onclick="fillLogin('admin@healthpulse.gov.in','Admin@123')"
+          style="background:#16a34a;color:white;border:none;padding:9px 6px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <span style="font-size:18px;">🏛️</span>Admin
+        </button>
+        <button onclick="fillLogin('satya@example.com','Citizen@123')"
+          style="background:#0ea5e9;color:white;border:none;padding:9px 6px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <span style="font-size:18px;">👤</span>Citizen
+        </button>
+        <button onclick="fillLogin('priya@phc.gov.in','Employee@123')"
+          style="background:#7c3aed;color:white;border:none;padding:9px 6px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <span style="font-size:18px;">👨‍⚕️</span>Employee
+        </button>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#64748b;line-height:1.6;">
+        <b>Admin:</b> admin@healthpulse.gov.in &nbsp;|&nbsp;
+        <b>Citizen:</b> satya@example.com &nbsp;|&nbsp;
+        <b>Employee:</b> priya@phc.gov.in<br>
+        Password for all: <b>Admin@123 / Citizen@123 / Employee@123</b>
+      </div>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label class="form-label" data-i18n="email">Email Address</label>
+        <input type="email" id="email" class="form-input" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="password">Password</label>
+        <div style="position:relative;">
+          <input type="password" id="password" class="form-input" placeholder="••••••••" required style="padding-right:44px;">
+          <button type="button" onclick="togglePwd()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;cursor:pointer;color:#64748b;">👁️</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+          <input type="checkbox" id="remember"> <span data-i18n="remember-me">Remember me</span>
+        </label>
+        <a href="#" style="font-size:13px;color:#16a34a;font-weight:600;" data-i18n="forgot-password">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+        <span id="login-text" data-i18n="sign-in">Sign In →</span>
+      </button>
+    </form>
+    <div class="auth-divider">or</div>
+    <div class="auth-footer">
+      <span data-i18n="no-account-yet">New citizen?</span> <a href="/register" data-i18n="create-health-profile">Create Health Profile</a>
+      &nbsp;•&nbsp;
+      <span data-i18n="employee-registration">Healthcare staff?</span> <a href="/register/employee" data-i18n="employee-registration">Employee Registration</a>
+    </div>
+  </div>
+</div>
+<div class="toast-container" id="toasts"></div>
+<script src="/static/js/app.js"></script>
+<script>
+function fillLogin(email, pass) {
+  document.getElementById('email').value = email;
+  document.getElementById('password').value = pass;
+  document.getElementById('email').focus();
+}
+function togglePwd() {
+  const p = document.getElementById('password');
+  p.type = p.type === 'password' ? 'text' : 'password';
+}
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const text = document.getElementById('login-text');
+  text.innerHTML = '<span class="loading"></span> Signing in...';
+  btn.disabled = true;
+  const form = new FormData();
+  form.append('email', document.getElementById('email').value.trim());
+  form.append('password', document.getElementById('password').value);
+  try {
+    const res = await fetch('/api/auth/login', {method:'POST', body: form});
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('role', data.role);
+      localStorage.setItem('name', data.name);
+      showToast('Welcome, ' + data.name + '! 👋', 'success');
+      setTimeout(() => window.location.href = data.redirect, 700);
+    } else {
+      showToast(data.detail || 'Login failed. Check credentials.', 'error');
+      text.innerHTML = 'Sign In →';
+      btn.disabled = false;
+    }
+  } catch(err) {
+    showToast('Connection error. Is the server running?', 'error');
+    text.innerHTML = 'Sign In →';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
